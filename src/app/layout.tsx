@@ -5,8 +5,8 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Inariam | A PCP Product",
-  description: "A Pcp Product",
+  title: "Multicloud Platform",
+  description: "Multicloud Platform",
 }
 
 export default function RootLayout({

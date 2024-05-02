@@ -1,140 +1,221 @@
-"use client"
-import React, { useState, useEffect } from "react"
-import { Title, ProviderButton } from "@/components/atoms"
-import { PolicyData, IamModal } from "@/components/organisms"
-import { AdminMenu, HandlePolicy } from "@/components/molecules"
-import { AiOutlineSearch } from "react-icons/ai"
-import { Input } from "@nextui-org/input"
-import { Button } from "@nextui-org/button"
-import { Checkbox } from "@nextui-org/checkbox"
-import { useDisclosure } from "@nextui-org/use-disclosure"
-import inariam from "./../../../public/inariam2.svg"
-import Image from "next/image"
-import { useDebounce } from "@uidotdev/usehooks"
-const getPolicies = async (provider: string, search: string, flt: string) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND}/api/iam/policies?q=${search}&provider=${provider}&filters=${flt}`
-  )
-  return res.json()
-}
-const PolicyPage = () => {
-  const [iamPolicies, setPolicies]: any = useState()
-  const [search, setSearch] = useState("")
-  const debouncedSearch = useDebounce(search, 500)
-  const [prov, setProv] = useState("")
-  const [filters, setFilters]: any = useState([])
-  const { isOpen, onOpen, onClose } = useDisclosure()
+"use client";
+import React, { useState, useEffect } from "react";
+import { Title, ProviderButton } from "@/components/atoms";
+import { PolicyData, IamModal } from "@/components/organisms";
+import { AdminMenu, HandlePolicy } from "@/components/molecules";
+import { AiOutlineSearch } from "react-icons/ai";
+import { Input } from "@nextui-org/input";
+import { Button } from "@nextui-org/button";
+import { useDisclosure } from "@nextui-org/use-disclosure";
+import { useDebounce } from "@uidotdev/usehooks";
 
-  const [saveRes, setSaveRes]: any = useState()
-  const [deleteRes, setDeleteRes]: any = useState()
-  const handleOpen = () => {
-    onOpen()
-  }
+const PolicyPage = () => {
+  const [resources, setResources] = useState([]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data: any = await getPolicies(
-        prov,
-        debouncedSearch,
-        String(filters)
-      )
-      setPolicies(data)
+    const fetchResources = async () => {
+      // Fetching GCP instances and buckets
+      const instanceResponse = await fetch('http://localhost:8080/instances');
+      const bucketResponse = await fetch('http://localhost:8080/storage-buckets');
+      // Fetching IBM resources
+      const ibmResponse = await fetch('http://localhost:8082/resources');
+
+      let newResources: any[] | ((prevState: never[]) => never[]) = [];
+
+      if (instanceResponse.ok) {
+        const instanceData = await instanceResponse.json();
+        newResources = newResources.concat(instanceData.map(item => ({
+          id: item.name,
+          name: item.name,
+          provider: item.provider,
+          location: item.zone.split('/').pop(),
+          type: 'VM'
+        })));
+      } else {
+        console.error('Failed to fetch instances:', instanceResponse.statusText);
+      }
+
+      if (bucketResponse.ok) {
+        const bucketData = await bucketResponse.json();
+        newResources = newResources.concat(bucketData.map(bucket => ({
+          id: bucket.Name,
+          name: bucket.Name,
+          provider: "Google Cloud",
+          location: bucket.Location,
+          type: 'Storage Bucket'
+        })));
+      } else {
+        console.error('Failed to fetch buckets:', bucketResponse.statusText);
+      }
+
+      if (ibmResponse.ok) {
+        const ibmData = await ibmResponse.json();
+        newResources = newResources.concat(ibmData.map(res => ({
+          id: res.id,
+          name: res.name,
+          provider: "IBM",
+          location: res.region_id,
+          type: res.type || 'IBM Resource'
+        })));
+        console.log("han ibm", ibmData)
+      } else {
+        console.error('Failed to fetch IBM resources:', ibmResponse.statusText);
+      }
+
+      setResources(newResources);
+    };
+
+    fetchResources();
+  }, []);
+  const deleteIBMResource = async (resourceId) => {
+    try {
+      const response = await fetch('http://localhost:8085/deleteResource', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ resourceId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert(result);
+      setResources(prevResources => prevResources.filter(res => res.id !== resourceId));
+    } catch (error) {
+      console.error('Failed to delete the IBM resource:', error);
+      alert('Failed to delete the IBM resource.');
     }
-    fetchData()
-    onClose()
-  }, [debouncedSearch, filters, prov, saveRes, deleteRes])
+  };
+
+  const deleteGCPResource = async (resource) => {
+    let endpoint = '';
+    let payload = {};
+
+    // Determine if the resource is a VM or a Bucket and set the appropriate URL and payload
+    if (resource.type === 'VM') {
+      endpoint = 'http://localhost:8083/deleteInstance';
+      payload = {
+        projectID: 'sound-habitat-418811', 
+        zone: resource.location,
+        instanceName: resource.name,
+      };
+    } else if (resource.type === 'Storage Bucket') {
+      endpoint = 'http://localhost:8084/deleteBucket';
+      payload = {
+        bucketName: resource.name,
+      };
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      alert(`${resource.type} "${resource.name}" deleted successfully!`);
+      // Update the state to remove the resource from the list
+      setResources(prevResources => prevResources.filter(res => res.id !== resource.id));
+    } catch (error) {
+      console.error('Failed to delete the resource:', error);
+      alert(`Failed to delete ${resource.type} "${resource.name}".`);
+    }
+  };
 
   return (
     <div className="w-full h-screen overflow-hidden">
-      <section className="w-full h-auto  darkGradient overflow-hidden">
+      <section className="w-full h-auto darkGradient overflow-hidden">
         <AdminMenu Counter={300} />
       </section>
 
       <div className="flex items-center justify-center w-full h-full">
-        <aside
-          className="hidden xl:block w-1/4 h-full border-r border-gray-600"
-          style={{
-            background:
-              "radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%)",
-          }}
-        >
+        <aside className="hidden xl:block w-1/4 h-full border-r border-gray-600">
           <Title>My Cloud Providers</Title>
-
           <div className="w-full h-auto flex items-center justify-center flex-col gap-5">
-            <ProviderButton Active Provider="aws" Event={() => {}} />
-            {/* <ProviderButton Active Provider="azure" Event={() => {}} /> */}
+            <ProviderButton Active Provider="azure" Event={() => {}} />
             <ProviderButton Active Provider="gcp" Event={() => {}} />
             <ProviderButton Provider="aws" />
           </div>
         </aside>
-        <aside className="w-full xl:w-3/4 h-full overflow-y-scroll pb-20 ">
-          <Title>
-            List Of Policies ({iamPolicies ? iamPolicies.length : 0})
-          </Title>
+        <aside className="w-full xl:w-3/4 h-full overflow-y-scroll pb-20">
+          <Title>List Of Resources ({resources.length})</Title>
 
           <div className="w-4/5 m-auto h-auto flex items-center justify-between px-10 flex-col md:flex-row gap-5">
             <Input
               type="text"
               color="default"
               className="lg:w-96 !text-xs lg:text-base"
-              placeholder="Search For A Role"
+              placeholder="Search For A Resource"
               labelPlacement="outside"
-              startContent={
-                <AiOutlineSearch className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-              }
+              startContent={<AiOutlineSearch className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-              }}
+              onChange={(e) => setSearch(e.target.value)}
             />
-
-            <Button
-              color="warning"
-              className="text-white"
-              type="button"
-              onPress={() => {
-                handleOpen()
-              }}
-            >
-              Add A Policy
+            <Button color="warning" className="text-white" type="button" onPress={onOpen}>
+              Add A Resource
             </Button>
           </div>
-          <div className="w-4/5 m-auto px-10 pt-10 flex gap-5 flex-col md:flex-row">
-            <p className="text-gray-900 font-semibold">
-              Search Filter Option :
-            </p>
-            <div className="flex gap-10">
-              <Checkbox
-                defaultSelected
-                color="default"
-                icon={
-                  <Image
-                    src={inariam}
-                    fill
-                    alt={""}
-                    className="!p-5 block relative"
-                  />
-                }
-                onChange={(e: any) => {
-                  if (e.checked) {
-                    setFilters([...filters, "namee"])
-                  } else {
-                    setFilters(filters.filter((f: any) => f !== "name"))
-                  }
-                }}
-              >
-                Policy Name
-              </Checkbox>
-            </div>
-          </div>
+
           <div className="w-11/12 lg:w-4/5 m-auto h-auto px-10 py-10">
-            {iamPolicies && <PolicyData Data={iamPolicies} />}
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Provider
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {resources.map(resource => (
+                  <tr key={resource.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{resource.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.provider}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.location}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {resource.provider === 'Google Cloud'  ? (
+                        <Button color="error" size="sm" onClick={() => deleteGCPResource(resource)}>
+                          Delete
+                        </Button>
+                      ): resource.provider === 'IBM' ? (
+                        <Button color="error" size="sm" onClick={() => deleteIBMResource(resource.id)}>
+                          Delete
+                        </Button>
+                      ) : (
+                        <Button color="error" size="sm" disabled>
+                          Delete
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          {!iamPolicies && (
-            <div className="m-auto w-full flex items-center justify-center">
-              <span className="loader"></span>
-            </div>
-          )}
         </aside>
       </div>
 
@@ -142,18 +223,12 @@ const PolicyPage = () => {
         Size={"4xl"}
         isOpen={isOpen}
         onClose={onClose}
-        handler={handleOpen}
-        body={
-          <HandlePolicy
-            onCreate={(r: any) => {
-              setSaveRes(r)
-            }}
-          />
-        }
-        title={"Create IAM Policy"}
+        handler={onOpen}
+        body={<HandlePolicy onCreate={(r) => { setSaveRes(r); }} />}
+        title={"Create Resource"}
       />
     </div>
-  )
-}
+  );
+};
 
-export default PolicyPage
+export default PolicyPage;

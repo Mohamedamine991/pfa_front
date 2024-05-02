@@ -5,8 +5,8 @@ import { Input, Checkbox, Button } from "@nextui-org/react"
 import { useLogin } from "@/hooks"
 import Link from "next/link"
 const Login = () => {
-  const { email, password, setEmail, setPassword, login } = useLogin()
-
+  const { email, password, setEmail, setPassword, login, userData, error } = useLogin();
+  console.log("user data",userData)
   const handleSubmit = (e: any) => {
     e.preventDefault()
     login()
@@ -80,9 +80,12 @@ const Login = () => {
                   </Checkbox>
                 </div>
                 <Button
+                as={Link}
                   color="primary"
                   className="w-full quick bg-[#3D5898]"
                   type="submit"
+                  href="/policies"
+
                 >
                   Login
                 </Button>

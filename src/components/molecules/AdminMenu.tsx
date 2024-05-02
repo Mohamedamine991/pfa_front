@@ -73,13 +73,7 @@ const AdminMenu = ({ ...props }) => {
         </NavbarContent>
 
         <NavbarContent className="hidden sm:flex gap-4 " justify="center">
-          <NavbarBrand className="gap-3 px-7 ">
-            <Link href={"/dashboard"}>
-              <div className="w-10 h-10  flex items-center justify-center  relative">
-                <Image src={Inariam} alt={"Inariam Logo"} fill />
-              </div>
-            </Link>
-          </NavbarBrand>
+          
           <NavbarItem isActive>
             <Link
               color="foreground"
@@ -101,7 +95,7 @@ const AdminMenu = ({ ...props }) => {
               <MdOutlinePolicy
                 style={{ color: "#ffffff", fontSize: "1.5rem" }}
               />
-              Manage Policies
+              Manage Ressources
             </Link>
           </NavbarItem>
           <NavbarItem>

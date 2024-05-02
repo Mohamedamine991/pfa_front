@@ -8,7 +8,7 @@ enum Provider {
 const ProviderButton = ({ ...props }) => {
   const data = {
     aws: {
-      title: "Amazon Web Service",
+      title: "IBM Cloud",
       color: "#252f3e",
       logo: <AWS Width={30} />,
     },

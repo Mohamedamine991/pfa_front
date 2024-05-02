@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 const useSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,44 +15,51 @@ const useSignup = () => {
 
   const signup = async () => {
     const formData = new FormData();
-
     // Append common fields
+    formData.append("username", username);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("username", username);
-
     // GCP Fields
-    formData.append("projectId", projectId);
-    if (gcpJsonFile) {
-      formData.append("gcpJsonFile", gcpJsonFile);
-    }
+    
+      formData.append("gcp_json", gcpJsonFile); // The key must match the backend's expected key
+    
+    
+    formData.append("gcp_project_name", projectId);
+    console.log(projectId)
+    
 
     // Azure Fields
-    formData.append("azureClientId", azureClientId);
-    formData.append("azureClientSecret", azureClientSecret);
-    formData.append("azureTenantId", azureTenantId);
+    formData.append("azure_client_id", azureClientId);
+    formData.append("azure_client_secret", azureClientSecret);
+    formData.append("azure_tenant_id", azureTenantId);
+    console.log("passe ici")
 
     // IBM Fields
-    formData.append("ibmApiKey", ibmApiKey);
+    formData.append("ibm_api_key", ibmApiKey);
+    
+   
+      
 
-    try {
+ 
       // Adjust the URL to your backend endpoint for signup
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        body: formData, // Use FormData to handle file uploads and text fields
+      try{ const response = await fetch('http://localhost:9091/signup', {
+        method: 'POST',
+        
+        body: formData,
       });
-
-      if (!response.ok) {
-        throw new Error("Signup failed");
-      }
-
-      // Handle successful signup
       alert("Signup successful!");
-      // Redirect the user or clear the form as needed
-    } catch (error) {
-      alert(`Signup error: ${error}`);
+      return true
+     // router.push('/');
+
     }
-  };
+      catch(e) {
+        console.log(e)
+       
+        alert(`Signup error: ${e}`);
+        }
+      }
+     
+
 
   return {
     email, setEmail,

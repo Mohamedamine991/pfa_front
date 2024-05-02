@@ -18,56 +18,44 @@ const KeyFeatures = ({ ...props }) => {
           Title={"Seamless Single Sign-On (SSO)"}
           Image={Computer.src}
           Description={
-            "Inariam enables users to access multiple cloud providers using a single sign-on (SSO) process, enhancing user experience and security."
+            "this project enables users to access multiple cloud providers using a single sign-on (SSO) process, enhancing user experience and security."
           }
         />{" "}
-        <KeyCard
-          Title={"Comprehensive Role and Permission Management"}
-          Image={Permission.src}
-          Description={
-            "Inariam provides a central hub for defining roles, assigning granular permissions, and enforcing compliance across different cloud providers."
-          }
-        />{" "}
+        
         <KeyCard
           Title={"Enhanced Security and Compliance"}
           Image={Security.src}
           Description={
-            "Inariam incorporates a robust security and compliance engine to enforce rules, validate permissions, and ensure adherence to organizational and industry standards."
+            "this project incorporates a robust security and compliance engine to enforce rules, validate permissions, and ensure adherence to organizational and industry standards."
           }
         />{" "}
         <KeyCard
           Title={"Efficient User Management"}
           Image={manage.src}
           Description={
-            "Inariam aims to simplify the creation, modification, and deletion of user accounts, along with the assignment of roles and permissions, ensuring seamless user administration."
+            "this project aims to simplify the creation, modification, and deletion of Cloud Ressources, along with the assignment of roles and permissions, ensuring seamless user administration."
           }
         />
         <KeyCard
           Title={"Multi-Cloud Integration"}
           Image={cloud.src}
           Description={
-            "Inariam enables organizations to interact with Azure, GCP, and AWS through a unified interface, streamlining user management and permissions across various cloud environments."
+            "this project enables organizations to interact with Azure, GCP, and IBM through a unified interface, streamlining user management and permissions across various cloud environments."
           }
         />
         <KeyCard
           Title={"Template-Based Workflow"}
           Image={template.src}
           Description={
-            "The project offers pre-ready templates for user, group, and role creation, promoting consistency, efficiency, and adherence to best practices."
+            "The project offers pre-ready terraform templates for ressources creation, promoting consistency, efficiency, and adherence to best practices."
           }
         />
-        <KeyCard
-          Title={"Monitoring and Reporting"}
-          Image={monitoring.src}
-          Description={
-            "Inariam includes monitoring capabilities to scan for vulnerabilities, identify potential threats, and provide timely reporting to administrators."
-          }
-        />{" "}
+        
         <KeyCard
           Title={"Stakeholders and Roles"}
           Image={role.src}
           Description={
-            "The success of the inariam project depends on the collaborative efforts of various stakeholders:"
+            "The success of this project depends on the collaborative efforts of various stakeholders:"
           }
         />
       </div>

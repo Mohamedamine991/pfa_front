@@ -18,12 +18,14 @@ const PolicyPage = () => {
   useEffect(() => {
     const fetchResources = async () => {
       // Fetching GCP instances and buckets
-      const instanceResponse = await fetch('http://localhost:8080/instances');
-      const bucketResponse = await fetch('http://localhost:8080/storage-buckets');
+      const instanceResponse = await fetch('http://localhost:8086/instances');
+      const bucketResponse = await fetch('http://localhost:8086/storage-buckets');
       // Fetching IBM resources
       const ibmResponse = await fetch('http://localhost:8082/resources');
+      // Fetching Azure resources
+      const azureResponse = await fetch('http://localhost:8081/resources');
 
-      let newResources: any[] | ((prevState: never[]) => never[]) = [];
+      let newResources = [];
 
       if (instanceResponse.ok) {
         const instanceData = await instanceResponse.json();
@@ -60,9 +62,23 @@ const PolicyPage = () => {
           location: res.region_id,
           type: res.type || 'IBM Resource'
         })));
-        console.log("han ibm", ibmData)
+        console.log("IBM resources:", ibmData)
       } else {
         console.error('Failed to fetch IBM resources:', ibmResponse.statusText);
+      }
+
+      if (azureResponse.ok) {
+        const azureData = await azureResponse.json();
+        newResources = newResources.concat(azureData.map(res => ({
+          id: res.id,
+          name: res.name,
+          provider: "Azure",
+          location: res.location,
+          type: res.type
+        })));
+        console.log("Azure resources:", azureData)
+      } else {
+        console.error('Failed to fetch Azure resources:', azureResponse.statusText);
       }
 
       setResources(newResources);
@@ -70,6 +86,7 @@ const PolicyPage = () => {
 
     fetchResources();
   }, []);
+
   const deleteIBMResource = async (resourceId) => {
     try {
       const response = await fetch('http://localhost:8085/deleteResource', {
@@ -131,6 +148,40 @@ const PolicyPage = () => {
     } catch (error) {
       console.error('Failed to delete the resource:', error);
       alert(`Failed to delete ${resource.type} "${resource.name}".`);
+    }
+  };
+
+  const deleteAzureResource = async (resource) => {
+    if (resource.type !== 'Microsoft.Compute/virtualMachines') {
+      alert(`Deletion for resource type "${resource.type}" is not supported yet.`);
+      return;
+    }
+
+    const payload = {
+      subscriptionId: 'your_subscription_id', // Replace with your Azure subscription ID
+      resourceGroupName: 'your_resource_group_name', // Replace with the resource group name
+      vmName: resource.name,
+    };
+
+    try {
+      const response = await fetch('http://localhost:8080/deleteVM', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      alert(`Azure VM "${resource.name}" deleted successfully!`);
+      // Update the state to remove the resource from the list
+      setResources(prevResources => prevResources.filter(res => res.id !== resource.id));
+    } catch (error) {
+      console.error('Failed to delete the Azure VM:', error);
+      alert(`Failed to delete Azure VM "${resource.name}".`);
     }
   };
 
@@ -203,6 +254,10 @@ const PolicyPage = () => {
                         </Button>
                       ): resource.provider === 'IBM' ? (
                         <Button color="error" size="sm" onClick={() => deleteIBMResource(resource.id)}>
+                          Delete
+                        </Button>
+                      ) : resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
+                        <Button color="error" size="sm" onClick={() => deleteAzureResource(resource)}>
                           Delete
                         </Button>
                       ) : (

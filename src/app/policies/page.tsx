@@ -185,6 +185,38 @@ const PolicyPage = () => {
     }
   };
 
+  const stopAzureVM = async (resource) => {
+    if (resource.type !== 'Microsoft.Compute/virtualMachines') {
+      alert(`Stopping for resource type "${resource.type}" is not supported yet.`);
+      return;
+    }
+
+    const payload = {
+      subscriptionId: 'your_subscription_id', // Replace with your Azure subscription ID
+      resourceGroupName: 'your_resource_group_name', // Replace with the resource group name
+      vmName: resource.name,
+    };
+
+    try {
+      const response = await fetch('http://localhost:8095/stopVM', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      alert(`Azure VM "${resource.name}" stopped successfully!`);
+    } catch (error) {
+      console.error('Failed to stop the Azure VM:', error);
+      alert(`Failed to stop Azure VM "${resource.name}".`);
+    }
+  };
+
   return (
     <div className="w-full h-screen overflow-hidden">
       <section className="w-full h-auto darkGradient overflow-hidden">
@@ -236,7 +268,10 @@ const PolicyPage = () => {
                     Type
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    Delete
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Stop
                   </th>
                 </tr>
               </thead>
@@ -248,11 +283,11 @@ const PolicyPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.location}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.type}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {resource.provider === 'Google Cloud'  ? (
+                      {resource.provider === 'Google Cloud' ? (
                         <Button color="error" size="sm" onClick={() => deleteGCPResource(resource)}>
                           Delete
                         </Button>
-                      ): resource.provider === 'IBM' ? (
+                      ) : resource.provider === 'IBM' ? (
                         <Button color="error" size="sm" onClick={() => deleteIBMResource(resource.id)}>
                           Delete
                         </Button>
@@ -263,6 +298,17 @@ const PolicyPage = () => {
                       ) : (
                         <Button color="error" size="sm" disabled>
                           Delete
+                        </Button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
+                        <Button color="primary" size="sm" onClick={() => stopAzureVM(resource)}>
+                          Stop
+                        </Button>
+                      ) : (
+                        <Button color="primary" size="sm" disabled>
+                          Stop
                         </Button>
                       )}
                     </td>

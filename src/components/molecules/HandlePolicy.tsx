@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import axios from 'axios';
 
-const HandlePolicy = () => {
+const HandlePolicy = ({ onCreate, actionType }) => {
   const [provider, setProvider] = useState('');
   const [resource, setResource] = useState('');
   const [attributes, setAttributes] = useState({});
@@ -122,10 +122,7 @@ const HandlePolicy = () => {
 
       <div className="flex gap-3">
         <Button auto shadow color="primary" onClick={handleSubmit}>
-          Create
-        </Button>
-        <Button auto shadow color="primary" onClick={handleSubmit}>
-          Update
+          {actionType}
         </Button>
       </div>
     </div>

@@ -14,6 +14,15 @@ const PolicyPage = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalTitle, setModalTitle] = useState("Create Resource");
+  const [modalButtonText, setModalButtonText] = useState("Create");
+  const handleOpenModal = (title:any, buttonText:any) => {
+    setModalTitle(title);
+    setModalButtonText(buttonText);
+    onOpen();
+  };
+  
+
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -34,7 +43,7 @@ const PolicyPage = () => {
           name: item.name,
           provider: item.provider,
           location: item.zone.split('/').pop(),
-          type: 'VM'
+          type: 'Virtual Machine'
         })));
       } else {
         console.error('Failed to fetch instances:', instanceResponse.statusText);
@@ -217,6 +226,11 @@ const PolicyPage = () => {
     }
   };
 
+  const updateResource = (resource) => {
+    handleOpenModal("Update Resource", "Update");
+    // Pass the resource to the HandlePolicy component if necessary
+  };
+
   return (
     <div className="w-full h-screen overflow-hidden">
       <section className="w-full h-auto darkGradient overflow-hidden">
@@ -246,9 +260,9 @@ const PolicyPage = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Button color="warning" className="text-white" type="button" onPress={onOpen}>
-              Add A Resource
-            </Button>
+            <Button color="warning" className="text-white" type="button" onPress={() => handleOpenModal("Create Resource", "Create")}>
+  Add A Resource
+</Button>
           </div>
 
           <div className="w-11/12 lg:w-4/5 m-auto h-auto px-10 py-10">
@@ -268,10 +282,7 @@ const PolicyPage = () => {
                     Type
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Delete
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stop
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -283,34 +294,39 @@ const PolicyPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.location}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resource.type}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {resource.provider === 'Google Cloud' ? (
-                        <Button color="error" size="sm" onClick={() => deleteGCPResource(resource)}>
-                          Delete
+                      <div className="flex flex-col space-y-2">
+                        {resource.provider === 'Google Cloud' ? (
+                          <Button style={{ backgroundColor: 'red', color: 'white' }} size="sm" onClick={() => deleteGCPResource(resource)}>
+                            Delete
+                          </Button>
+                        ) : resource.provider === 'IBM' ? (
+                          <Button style={{ backgroundColor: 'red', color: 'white' }} size="sm" onClick={() => deleteIBMResource(resource.id)}>
+                            Delete
+                          </Button>
+                        ) : resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
+                          <Button style={{ backgroundColor: 'red', color: 'white' }} size="sm" onClick={() => deleteAzureResource(resource)}>
+                            Delete
+                          </Button>
+                        ) : (
+                          <Button style={{ backgroundColor: 'red', color: 'white' }} size="sm" disabled>
+                            Delete
+                          </Button>
+                        )}
+
+                        {resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
+                          <Button color="warning" size="sm" className="text-white" onClick={() => stopAzureVM(resource)}>
+                            Stop
+                          </Button>
+                        ) : (
+                          <Button color="warning" className="text-white" size="sm" disabled>
+                            Stop
+                          </Button>
+                        )}
+
+                        <Button color="primary" size="sm"  onClick={() => updateResource(resource)}>
+                          Update
                         </Button>
-                      ) : resource.provider === 'IBM' ? (
-                        <Button color="error" size="sm" onClick={() => deleteIBMResource(resource.id)}>
-                          Delete
-                        </Button>
-                      ) : resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
-                        <Button color="error" size="sm" onClick={() => deleteAzureResource(resource)}>
-                          Delete
-                        </Button>
-                      ) : (
-                        <Button color="error" size="sm" disabled>
-                          Delete
-                        </Button>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {resource.provider === 'Azure' && resource.type === 'Microsoft.Compute/virtualMachines' ? (
-                        <Button color="primary" size="sm" onClick={() => stopAzureVM(resource)}>
-                          Stop
-                        </Button>
-                      ) : (
-                        <Button color="primary" size="sm" disabled>
-                          Stop
-                        </Button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -321,13 +337,15 @@ const PolicyPage = () => {
       </div>
 
       <IamModal
-        Size={"4xl"}
-        isOpen={isOpen}
-        onClose={onClose}
-        handler={onOpen}
-        body={<HandlePolicy onCreate={(r) => { setSaveRes(r); }} />}
-        title={"Create Resource"}
-      />
+  Size={"4xl"}
+  isOpen={isOpen}
+  onClose={onClose}
+  handler={onOpen}
+  body={<HandlePolicy onCreate={(r) => { setSaveRes(r); }} actionType={modalButtonText} />}
+  title={modalTitle}
+  buttonText={modalButtonText}
+/>
+
     </div>
   );
 };

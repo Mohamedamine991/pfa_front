@@ -80,11 +80,11 @@ const Login = () => {
                   </Checkbox>
                 </div>
                 <Button
-                as={Link}
+               // as={Link}
                   color="primary"
                   className="w-full quick bg-[#3D5898]"
                   type="submit"
-                  href="/policies"
+                 // href="/policies"
 
                 >
                   Login

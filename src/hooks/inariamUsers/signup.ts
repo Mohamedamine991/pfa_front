@@ -42,7 +42,7 @@ const useSignup = () => {
 
  
       // Adjust the URL to your backend endpoint for signup
-      try{ const response = await fetch('http://signup:9090/signup', {
+      try{ const response = await fetch('http://localhost:9090/signup', {
         method: 'POST',
         
         body: formData,

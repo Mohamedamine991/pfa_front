@@ -20,7 +20,7 @@ const useLogin = () => {
 
   const login = async () => {
     try {
-      const response = await fetch('http://signin:9091/signin', {
+      const response = await fetch('http://localhost:9091/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

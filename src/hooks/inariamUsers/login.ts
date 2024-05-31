@@ -30,7 +30,9 @@ interface LoginResponse {
       alert("sign in successful");
 
       
-      console.log(response)
+      console.log("here is response" ,response)
+      console.log(email)
+      console.log(password)
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'Login failed');

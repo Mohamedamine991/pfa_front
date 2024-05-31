@@ -98,43 +98,10 @@ const AdminMenu = ({ ...props }) => {
               Manage Ressources
             </Link>
           </NavbarItem>
-          <NavbarItem>
-            <Link
-              color="foreground"
-              href="/roles"
-              className="text-white text-xs quick flex items-center justify-center gap-2"
-            >
-              <RiFunctionLine
-                style={{ color: "#ffffff", fontSize: "1.5rem" }}
-              />
-              Manage Roles
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link
-              color="foreground"
-              href="/groups"
-              className="text-white text-xs flex items-center justify-center gap-2"
-            >
-              <AiOutlineGroup
-                style={{ color: "#ffffff", fontSize: "1.5rem" }}
-              />
-              Manage Groups
-            </Link>
-          </NavbarItem>
+          
+          
 
-          <NavbarItem>
-            <Link
-              color="foreground"
-              href="/users"
-              className="text-white text-xs flex items-center justify-center gap-2"
-            >
-              <AiOutlineUserSwitch
-                style={{ color: "#ffffff", fontSize: "1.5rem" }}
-              />
-              Manage Users
-            </Link>
-          </NavbarItem>
+         
         </NavbarContent>
 
         <NavbarContent justify="end">

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 
 interface LoginResponse {
   username: string;
@@ -9,7 +8,6 @@ interface LoginResponse {
   azure_client_secret: string;
   azure_tenant_id: string;
   ibm_api_key: string;
-  token: string; // Add the token field
 }
 
 const useLogin = () => {
@@ -36,8 +34,6 @@ const useLogin = () => {
       const userData: LoginResponse = await response.json();
       setUserData(userData);
 
-      // Store the JWT token in an HTTP-only cookie
-      Cookies.set('auth', userData.token, { expires: 1, sameSite: 'strict' });
 
       // Navigate the user to another page or set the user's data in a global state/context
       alert("Sign in successful");

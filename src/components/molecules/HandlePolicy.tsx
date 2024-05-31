@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import axios from 'axios';
 
-const HandlePolicy = () => {
+const HandlePolicy = ({ onCreate, actionType }) => {
   const [provider, setProvider] = useState('');
   const [resource, setResource] = useState('');
   const [attributes, setAttributes] = useState({});
@@ -66,18 +66,18 @@ const HandlePolicy = () => {
     const data = attributes;
 
     try {
-      console.log(endpoint)
-      console.log(data)
+      console.log(endpoint);
+      console.log(data);
       const response = await axios.post(endpoint, data, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      alert('Resource created successfully!');
+      alert('Resource created/updated successfully!');
       console.log('Response:', response.data);
     } catch (error) {
-      console.error('Error creating resource:', error);
-      alert('Failed to create resource.');
+      console.error('Error creating/updating resource:', error);
+      alert('Failed to create/update resource.');
     }
   };
 
@@ -120,9 +120,11 @@ const HandlePolicy = () => {
         />
       ))}
 
-      <Button auto shadow color="primary" onClick={handleSubmit}>
-        Create
-      </Button>
+      <div className="flex gap-3">
+        <Button auto shadow color="primary" onClick={handleSubmit}>
+          {actionType}
+        </Button>
+      </div>
     </div>
   );
 };

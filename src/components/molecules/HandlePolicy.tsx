@@ -57,10 +57,6 @@ const HandlePolicy = () => {
   };
 
   const handleSubmit = async () => {
-    if (provider === 'ibm') {
-      alert("You need a paid plan to create this service.");
-      return;
-    }
 
     const endpoint = apiEndpoints[provider][resource];
     const data = attributes;

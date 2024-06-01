@@ -57,14 +57,13 @@ const HandlePolicy = ({ onCreate, actionType }) => {
   };
 
   const handleSubmit = async () => {
-    
-
     const endpoint = apiEndpoints[provider][resource];
     const data = attributes;
 
     try {
-      console.log(endpoint);
-      console.log(data);
+      console.log('Endpoint:', endpoint);
+      console.log('Data:', JSON.stringify(data, null, 2));
+      
       const response = await axios.post(endpoint, data, {
         headers: {
           'Content-Type': 'application/json'
@@ -74,6 +73,7 @@ const HandlePolicy = ({ onCreate, actionType }) => {
       console.log('Response:', response.data);
     } catch (error) {
       console.error('Error creating/updating resource:', error);
+      console.error('Error details:', error.response ? error.response.data : 'No response data');
       alert('Failed to create/update resource.');
     }
   };

@@ -47,7 +47,7 @@ const HandlePolicy = ({ onCreate, actionType }) => {
     },
     ibm: {
       vm: ["resource_group_name", "location", "vm_name", "vm_size", "admin_username", "admin_password", "image_publisher", "image_offer", "image_sku", "image_version"],
-      object_storage: ["api_key", "resource_group_id", "instance_name", "plan", "location", "tags", "enable_hmac"],
+      object_storage: ["api_key","instance_name","plan","location","resource_group_id","tags", "enable_hmac"],
       datastage: ["instance_name", "plan", "location", "resource_group_id", "tags"]
     }
   };

@@ -64,7 +64,7 @@ const HandlePolicy = ({ onCreate, actionType }) => {
       console.log('Endpoint:', endpoint);
       console.log('Data:', JSON.stringify(data, null, 2));
       
-      const response = await axios.post(endpoint, JSON.stringify(data, null, 2), {
+      const response = await axios.post(endpoint, data, {
         headers: {
           'Content-Type': 'application/json'
         }

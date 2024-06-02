@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 const useSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,6 +11,7 @@ const useSignup = () => {
   const [azureClientId, setAzureClientId] = useState("");
   const [azureClientSecret, setAzureClientSecret] = useState("");
   const [azureTenantId, setAzureTenantId] = useState("");
+  const [azureSubscriptionId, setAzureSubscriptionId] = useState(""); // New state
   // IBM Fields
   const [ibmApiKey, setIbmApiKey] = useState("");
 
@@ -20,46 +22,32 @@ const useSignup = () => {
     formData.append("email", email);
     formData.append("password", password);
     // GCP Fields
-    
-      formData.append("gcp_json", gcpJsonFile); // The key must match the backend's expected key
-    
-    
+    formData.append("gcp_json", gcpJsonFile); // The key must match the backend's expected key
     formData.append("gcp_project_name", projectId);
-    console.log(projectId)
-    
 
     // Azure Fields
     formData.append("azure_client_id", azureClientId);
     formData.append("azure_client_secret", azureClientSecret);
     formData.append("azure_tenant_id", azureTenantId);
-    console.log("passe ici")
+    formData.append("azure_subscription_id", azureSubscriptionId); // Append new field
 
     // IBM Fields
     formData.append("ibm_api_key", ibmApiKey);
-    
-   
-      
 
- 
-      // Adjust the URL to your backend endpoint for signup
-      try{ const response = await fetch('http://localhost:9090/signup', {
+    // Adjust the URL to your backend endpoint for signup
+    try {
+      const response = await fetch('http://localhost:9090/signup', {
         method: 'POST',
-        
         body: formData,
       });
       alert("Signup successful!");
-      return true
-     // router.push('/');
-
+      return true;
+    } catch (e) {
+      console.log(e);
+      alert(`Signup error: ${e}`);
+      return false;
     }
-      catch(e) {
-        console.log(e)
-       
-        alert(`Signup error: ${e}`);
-        }
-      }
-     
-
+  };
 
   return {
     email, setEmail,
@@ -70,9 +58,10 @@ const useSignup = () => {
     azureClientId, setAzureClientId,
     azureClientSecret, setAzureClientSecret,
     azureTenantId, setAzureTenantId,
+    azureSubscriptionId, setAzureSubscriptionId, // Return new state
     ibmApiKey, setIbmApiKey,
     signup,
   };
 };
 
-export default useSignup
+export default useSignup;

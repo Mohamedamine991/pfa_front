@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react";
 import { useRouter } from 'next/router';
-
 import Image from "next/image";
 import svg from "./../../../../public/cloud.svg"; // Adjust the path as necessary
 import { Input, Button, Textarea } from "@nextui-org/react";
@@ -24,13 +23,15 @@ const Signup = () => {
     setAzureClientSecret,
     azureTenantId,
     setAzureTenantId,
+    azureSubscriptionId, // New field
+    setAzureSubscriptionId, // New setter
     ibmApiKey,
     setIbmApiKey,
     signup,
   } = useSignup();
 
   const [selectedFile, setSelectedFile] = useState();
-  const readFileAsArrayBuffer = async (file : any) => {
+  const readFileAsArrayBuffer = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -46,21 +47,16 @@ const Signup = () => {
     });
   };
 
-  const handleFileChange = async (event: { target: { files: any[]; }; }) => {
-   
-      const file = event.target.files[0];
-     // const arrayBuffer = await readFileAsArrayBuffer(file);
-     // const byteArray = new Uint8Array(arrayBuffer);
-      console.log("inside handle file change")
-      setSelectedFile(file);
-      setGcpJsonFile(file); // If you have this state or method in your useSignup hook
-    
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    console.log("inside handle file change")
+    setSelectedFile(file);
+    setGcpJsonFile(file); // If you have this state or method in your useSignup hook
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     signup();
-    
   };
 
   return (
@@ -94,6 +90,7 @@ const Signup = () => {
           <Input   placeholder="Azure Client ID" value={azureClientId} onChange={(e) => setAzureClientId(e.target.value)} />
           <Input    placeholder="Azure Client Secret" value={azureClientSecret} onChange={(e) => setAzureClientSecret(e.target.value)} />
           <Input    placeholder="Azure Tenant ID" value={azureTenantId} onChange={(e) => setAzureTenantId(e.target.value)} />
+          <Input    placeholder="Azure Subscription ID" value={azureSubscriptionId} onChange={(e) => setAzureSubscriptionId(e.target.value)} />
           <Input  placeholder="IBM API Key" value={ibmApiKey} onChange={(e) => setIbmApiKey(e.target.value)} />
           <Button className="w-full mt-4" type="submit" color="primary" >Sign Up</Button>
           </div>

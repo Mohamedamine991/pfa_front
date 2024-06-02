@@ -57,6 +57,10 @@ const HandlePolicy = ({ onCreate, actionType }) => {
   };
 
   const handleSubmit = async () => {
+    if (provider === 'ibm' && resource === 'vm') {
+      alert('You need a paid plan for this resource.');
+      return;
+    }
     const endpoint = apiEndpoints[provider][resource];
     const data = attributes;
 

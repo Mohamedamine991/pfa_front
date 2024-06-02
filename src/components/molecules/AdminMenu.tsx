@@ -123,11 +123,7 @@ const AdminMenu = ({ ...props }) => {
           <NavbarItem>
             <NotificationBell Counter={props.Counter} />
           </NavbarItem>
-          <NavbarItem>
-            <div className="cursor-pointer h-full flex items-center justify-center">
-              <DropUser />
-            </div>
-          </NavbarItem>
+          
         </NavbarContent>
 
         <NavbarMenu className="!bg-none">
